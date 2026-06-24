@@ -1,0 +1,84 @@
+<h2 class="govuk-heading-m govuk-!-margin-bottom-6">Current air pollution levels nearby</h2>
+<p>Air pollution information in {{ locationName }} is based upon data from the nearest monitoring areas.</p>
+{% set tabItems = [] %} {# Initialize an empty array to hold tab items #}
+
+{% for site in monitoringSites %}
+
+  {# Calculate highest AQI across all pollutants for this site #}
+  {% set highestAqi = 0 %}
+  {% set highestBand = "Low" %}
+  {% for pollutant in site.pollutants %}
+    {% if pollutant.aqi > highestAqi %}
+      {% set highestAqi = pollutant.aqi %}
+      {% set highestBand = pollutant.band %}
+    {% endif %}
+  {% endfor %}
+
+  {% set measurementToggletip %}
+    {{ toggletip(
+      '',
+      'More information about measurement',
+      'Readings are measured every hour. The unit µg/&#13221; stands for micrograms (one millionth of a gram) per cubic metre of air.',
+      'Latest'
+    )}}
+  {% endset %}
+
+  {% set panelHtml %}
+    <h3 class="govuk-heading-s govuk-!-margin-bottom-1 pollutant-table"><a href="https://get-air-pollution-data-proto-c7a2601e06dd.herokuapp.com/version-15/station/station">{{ site.site_name }}</a></h3>
+    <p class="defra-aq-tabs__mobile-distance govuk-caption-m">{{ site.distance }} miles away</p>
+    <p class="govuk-!-margin-bottom-4">{{ siteTypeDescriptions[site.site_type] }}</p>
+    <table class="govuk-table govuk-!-margin-bottom-2">
+      <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+          <th scope="col" class="govuk-table__header">Pollutants</th>
+          <th scope="col" class="govuk-table__header">{{ measurementToggletip | safe }}</th>
+          <th scope="col" class="govuk-table__header">Current level</th>
+        </tr>
+      </thead>
+      <tbody class="govuk-table__body">
+        {% for pollutant in site.pollutants %}
+          {% set pollutantDetail = pollutantTypes[pollutant.type] %}
+          <tr class="govuk-table__row">
+            <td class="govuk-table__cell align-middle">
+              <a class="govuk-!-margin-bottom-1 govuk-!-font-weight-bold" href="/{{ version }}{{ pollutantDetail.href }}">{{ pollutantDetail.title }}</a>
+              <span class="govuk-caption-s govuk-!-margin-bottom-1">Low range {{ pollutantDetail.low_range }}</span>
+            </td>
+            <td class="govuk-table__cell align-middle">
+              <span class="govuk-!-font-weight-bold">{{ pollutant.measurement | int }}</span> <span class="govuk-!-font-size-16 govuk-!-font-weight-regular">μg/m<sup>3</sup></span>
+            </td>
+            <td class="govuk-table__cell align-middle">
+              <strong class="daqi-tag daqi-tag--{{ pollutant.aqi if pollutant.aqi else 'default-aqi-value' }}">{{ pollutant.aqi }} ({{ pollutant.band }})</strong>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p class="govuk-caption-s">Latest measurement {{ "now" | date | minusOneHour | lower }} on {{ "today" | govukDate }}</p>
+    <a href="https://get-air-pollution-data-proto-c7a2601e06dd.herokuapp.com/version-15/map" role="button" class="aq-button-secondary aq-button-secondary--icon govuk-!-margin-top-2">
+      <span class="aq-button-secondary__icon">
+        <svg focusable="false" width="15" height="20" viewBox="0 0 15 20">
+          <path d="M15,7.5c0.009,3.778 -4.229,9.665 -7.5,12.5c-3.271,-2.835 -7.509,-8.722 -7.5,-12.5c0,-4.142 3.358,-7.5 7.5,-7.5c4.142,0 7.5,3.358 7.5,7.5Zm-7.5,5.461c3.016,0 5.461,-2.445 5.461,-5.461c0,-3.016 -2.445,-5.461 -5.461,-5.461c-3.016,0 -5.461,2.445 -5.461,5.461c0,3.016 2.445,5.461 5.461,5.461Z" fill="currentColor"></path>
+        </svg>
+      </span>
+      <span class="aq-button-secondary__text">View map of nearby monitoring stations</span>
+      <span class="govuk-visually-hidden">(Visual only)</span>
+    </a>
+  {% endset %}
+
+  {% set tabItem = {
+    classes: "govuk-tabs__list-item--sites",
+    label: site.site_name | truncate(15),
+    status: "<span class='defra-aq-tabs__label-distance'>" ~ site.distance ~ " miles away</span>",
+    id: site.site_id,
+    panel: {
+      html: panelHtml
+    }
+  } %}
+
+  {% set _ = tabItems.push(tabItem) %}
+{% endfor %}
+
+{{ aqTabs({
+  classes: "defra-aq-tabs",
+  items: tabItems
+}) }}
