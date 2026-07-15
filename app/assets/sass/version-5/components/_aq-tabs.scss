@@ -10,6 +10,23 @@
         display: none;
 }
 
+.aq-location-day-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: govuk-spacing(3);
+}
+
+.aq-location-day-header .govuk-heading-m {
+    margin-bottom: govuk-spacing(4);
+}
+
+.aq-location-day-header__link {
+    text-align: right;
+    font-weight: 700;
+    margin-left: auto;
+}
+
 
 .defra-aq-tabs {
     margin-bottom: 0;
