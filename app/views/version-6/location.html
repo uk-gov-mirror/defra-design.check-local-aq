@@ -1,0 +1,259 @@
+{% extends "layouts/version-6.html" %}
+{% set displayBacklink = true %}
+{% set backlink = {
+  text: "Change location",
+  href: "/version-6/where"
+} %}
+
+{% from "/" + folder + "/components/toggletip/macro.njk" import toggletip %}
+{% from "/" + folder + "/components/aq-levels-table/macro.njk" import aqLevelsTable %}
+{% from "/" + folder + "/components/aq-tabs/macro.njk" import aqTabs %}
+{% from  "/" + folder + "/components/search/macro.njk" import appSearch %}
+{% from  "/" + folder + "/components/pollutant-levels/macro.njk" import appPollutantLevels %}
+
+{% set caption = "" %}
+{% macro getParentArea(result) %}
+  {% if result.GAZETTEER_ENTRY.LOCAL_TYPE == 'Postcode' %}
+    {{ result.populatedPlace | default("", true) | trim | safe }}
+  {% else %}
+    {{ (result.GAZETTEER_ENTRY.DISTRICT_BOROUGH if result.GAZETTEER_ENTRY.DISTRICT_BOROUGH else result.GAZETTEER_ENTRY.COUNTY_UNITARY) | default("", true) | trim | safe }}
+  {% endif %}
+{% endmacro %}
+
+{% set locationName = result.GAZETTEER_ENTRY.NAME1 | default("", true) | trim | safe %}
+{% set parentArea = getParentArea(result) %}
+{% set title = "Air pollution in " ~ locationName ~ (", " ~ parentArea if parentArea else "") %}
+{% set servicePage = true %}
+{% set pageHeadingSize = pageHeadingSize or "xl" %}
+
+{% set day2 = 1 | addDaysToTodayAbrev %}
+{% set day3 = 2 | addDaysToTodayAbrev %}
+{% set day4 = 3 | addDaysToTodayAbrev %}
+{% set day5 = 4 | addDaysToTodayAbrev %}
+
+{% set day2b = 1 | addDaysToTodayFull %}
+{% set day3b = 2 | addDaysToTodayFull %}
+{% set day4b = 3 | addDaysToTodayFull %}
+{% set day5b = 4 | addDaysToTodayFull %}
+
+{% set todayPollutantLevel = (airQuality.today.readableBand if airQuality and airQuality.today and airQuality.today.readableBand else "moderate") %}
+{% set day2PollutantLevel = (airQuality.day2.readableBand if airQuality and airQuality.day2 and airQuality.day2.readableBand else "moderate") %}
+{% set day3PollutantLevel = (airQuality.day3.readableBand if airQuality and airQuality.day3 and airQuality.day3.readableBand else "low") %}
+{% set day4PollutantLevel = (airQuality.day4.readableBand if airQuality and airQuality.day4 and airQuality.day4.readableBand else "low") %}
+{% set day5PollutantLevel = (airQuality.day5.readableBand if airQuality and airQuality.day5 and airQuality.day5.readableBand else "low") %}
+
+{% block pageScripts %}
+  <script src="/public/javascripts/toggletips.js"></script>
+{% endblock %}
+
+{% block content %}
+  <div class="govuk-grid-row" data-module="edge">
+    <div class="govuk-grid-column-full-until-desktop govuk-grid-column-two-thirds-from-desktop">
+
+      <h1 class="govuk-heading-{{ pageHeadingSize }}">
+          {{ title }}  
+          
+      <h2 class="govuk-heading-m">Predicted air pollution levels</h2>
+    
+      <!---------- TABBED FORECAST ---------->
+
+      <nav class="x-govuk-secondary-navigation" aria-label="Forecast days">
+        <ul class="x-govuk-secondary-navigation__list">
+          <li class="x-govuk-secondary-navigation__list-item x-govuk-secondary-navigation__list-item--current">
+            <a class="x-govuk-secondary-navigation__link" href="#today" aria-current="page">Today</a>
+          </li>
+          <li class="x-govuk-secondary-navigation__list-item">
+            <a class="x-govuk-secondary-navigation__link" href="#day2">{{ day2 }}</a>
+          </li>
+          <li class="x-govuk-secondary-navigation__list-item">
+            <a class="x-govuk-secondary-navigation__link" href="#day3">{{ day3 }}</a>
+          </li>
+          <li class="x-govuk-secondary-navigation__list-item">
+            <a class="x-govuk-secondary-navigation__link" href="#day4">{{ day4 }}</a>
+          </li>
+          <li class="x-govuk-secondary-navigation__list-item">
+            <a class="x-govuk-secondary-navigation__link" href="#day5">{{ day5 }}</a>
+          </li>
+        </ul>
+      </nav>
+
+      <!------ FORECAST PANELS ------>
+
+      <!--Today-->
+      <div class="aq-forecast-panel govuk-!-margin-top-6" id="today">
+        <div class="aq-location-day-header">
+          <h2 class="govuk-heading-m">Today</h2>
+          <a class="govuk-link aq-location-day-header__link govuk-heading-s" href="/{{ version }}/further-information?locationName={{ locationName }}&parentArea={{ parentArea }}#today">More about air pollution today</a>
+        </div>
+
+        {% include "/" + folder + "/includes/daqi-mod.html" %}
+
+        <p class="govuk-!-margin-top-6">Air pollution levels are expected to be mostly Low. However, some areas of Moderate pollution may develop in places, particularly in central and eastern England, due to light winds giving poor dispersion of locally emitted pollutants.</p>
+      </div>
+
+      <!--Tomorrow-->
+      <div class="aq-forecast-panel govuk-!-margin-top-6" id="day2" hidden>
+        <div class="aq-location-day-header">
+          <h2 class="govuk-heading-m">{{ day2b }}</h2>
+          <a class="govuk-link aq-location-day-header__link govuk-heading-s" href="/{{ version }}/further-information?locationName={{ locationName }}&parentArea={{ parentArea }}#day2">More about air pollution on {{ day2b }}</a>
+        </div>
+
+        {% include "/" + folder + "/includes/daqi-mod-day2.html" %}
+
+        <p class="govuk-!-margin-top-6">Moderate air pollution levels are expected to develop more widely across England and Wales on Friday, while air pollution is forecast to remain generally Low across Scotland.</p>
+      </div>
+
+      <!--Day 3-->
+      <div class="aq-forecast-panel govuk-!-margin-top-6" id="day3" hidden>
+        <div class="aq-location-day-header">
+          <h2 class="govuk-heading-m">{{ day3b }}</h2>
+          <a class="govuk-link aq-location-day-header__link govuk-heading-s" href="/{{ version }}/further-information?locationName={{ locationName }}&parentArea={{ parentArea }}#day3">More about air pollution on {{ day3b }}</a>
+        </div>
+
+        {% include "/" + folder + "/includes/daqi-mod-day3.html" %}
+
+        <p class="govuk-!-margin-top-6">Areas of Moderate air pollution are expected to become confined to Wales and western England on Saturday, before retreating to southern England on Sunday and Monday.</p>
+      </div>
+
+      <!--Day 4-->
+      <div class="aq-forecast-panel govuk-!-margin-top-6" id="day4" hidden>
+        <div class="aq-location-day-header">
+          <h2 class="govuk-heading-m">{{ day4b }}</h2>
+          <a class="govuk-link aq-location-day-header__link govuk-heading-s" href="/{{ version }}/further-information?locationName={{ locationName }}&parentArea={{ parentArea }}#day4">More about air pollution on {{ day4b }}</a>
+        </div>
+
+        {% include "/" + folder + "/includes/daqi-mod-day4.html" %}
+
+        <p class="govuk-!-margin-top-6">Areas of Moderate air pollution are expected to become confined to Wales and western England on Saturday, before retreating to southern England on Sunday and Monday.</p>
+      </div>
+
+      <!--Day 5-->
+      <div class="aq-forecast-panel govuk-!-margin-top-6" id="day5" hidden>
+        <div class="aq-location-day-header">
+          <h2 class="govuk-heading-m">{{ day5b }}</h2>
+          <a class="govuk-link aq-location-day-header__link govuk-heading-s" href="/{{ version }}/further-information?locationName={{ locationName }}&parentArea={{ parentArea }}#day5">More about air pollution on {{ day5b }}</a>
+        </div>
+
+        {% include "/" + folder + "/includes/daqi-mod-day5.html" %}
+
+        <p class="govuk-!-margin-top-6">Areas of Moderate air pollution are expected to become confined to Wales and western England on Saturday, before retreating to southern England on Sunday and Monday.</p>
+      </div>
+
+      
+
+      <p class="govuk-caption-s govuk-!-margin-top-4">Last updated today at 5am</p>
+
+      <script>
+        (function () {
+          var links = document.querySelectorAll('.x-govuk-secondary-navigation__link');
+          var panels = document.querySelectorAll('.aq-forecast-panel');
+
+          function activatePanel(target) {
+            links.forEach(function (l) {
+              var active = l.getAttribute('href').substring(1) === target;
+              l.parentElement.classList.toggle('x-govuk-secondary-navigation__list-item--current', active);
+              if (active) { l.setAttribute('aria-current', 'page'); } else { l.removeAttribute('aria-current'); }
+            });
+            panels.forEach(function (p) { p.hidden = (p.id !== target); });
+            history.replaceState(null, '', '#' + target);
+          }
+
+          var hash = window.location.hash.replace('#', '');
+          if (hash && document.getElementById(hash)) { activatePanel(hash); }
+
+          links.forEach(function (link) {
+            link.addEventListener('click', function (e) {
+              e.preventDefault();
+              activatePanel(this.getAttribute('href').substring(1));
+            });
+          });
+        })();
+      </script>
+
+
+      <!---------- END TABS ------------>
+
+      <a href="https://get-air-pollution-data-proto-c7a2601e06dd.herokuapp.com/version-16/forecast-map" role="button" id="map-btn" class="aq-button-secondary aq-button-secondary--icon">
+      <span class="aq-button-secondary__icon">
+        <svg focusable="false" width="15" height="20" viewBox="0 0 15 20">
+          <path d="M15,7.5c0.009,3.778 -4.229,9.665 -7.5,12.5c-3.271,-2.835 -7.509,-8.722 -7.5,-12.5c0,-4.142 3.358,-7.5 7.5,-7.5c4.142,0 7.5,3.358 7.5,7.5Zm-7.5,5.461c3.016,0 5.461,-2.445 5.461,-5.461c0,-3.016 -2.445,-5.461 -5.461,-5.461c-3.016,0 -5.461,2.445 -5.461,5.461c0,3.016 2.445,5.461 5.461,5.461Z" fill="currentColor"></path>
+        </svg>
+      </span>
+      <span class="aq-button-secondary__text">View air pollution forecast on a map</span>
+      <span class="govuk-visually-hidden">(Visual only)</span>
+    </a>
+
+      <hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-top-6">
+
+      <div class="govuk-!-padding-bottom-6"></div> <!-- <<< SPACER -->
+      <!--------- PAGE SECTIONS -------->
+      
+      <h2 class="govuk-heading-m">Health advice for low or moderate levels of air pollution</h2>
+
+      {% set healthAdviceSummary %}
+        <p class="govuk-body">There is no safe level of air pollution. However, for most people, short term exposure to low or moderate air pollution is not an issue. Continue your usual outdoor activities. <a class="govuk-link" href="/{{ version }}/health-effects?locationName={{ locationName }}&parentArea={{ parentArea }}">Read air pollution symptoms and health advice</a>.</p>
+        <p class="govuk-body govuk-!-margin-bottom-0">Long term exposure to air pollution can increase health risks. Simple steps like choosing less busy transport routes and reducing exposure to fire can help. Get more advice on <a class="govuk-link" href="/{{ version }}/actions?locationName={{ locationName }}&parentArea={{ parentArea }}">actions you can take to reduce your exposure</a>.</p>
+      {% endset %}
+
+      {{ govukInsetText({
+          classes: "govuk-inset-text--5",
+          html: healthAdviceSummary
+      }) }}
+
+      <div class="govuk-!-padding-bottom-2"></div> <!-- <<< SPACER -->
+
+      <hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-6">
+
+      {% include "/" + folder + "/includes/air-quality-alerts.html" %}
+
+
+
+      
+      
+
+      <div class="govuk-!-padding-bottom-9"></div>
+
+    </div>
+
+
+  <!-- RELATED CONTENT -->
+  <div class="govuk-grid-column-full-until-desktop govuk-grid-column-one-third-from-desktop">
+      
+    {{ xGovukRelatedNavigation({
+      sections: [{
+          items: [{
+              text: "Health effects of air pollution",
+              href: "/" + version + "/health-effects?locationName=" + locationName
+          },
+          {
+            text: "Actions to reduce your exposure to air pollution",
+            href: "/" + version + "/actions?locationName=" + locationName
+          },
+          {
+            text: "Air pollution breaches",
+            href: "/" + version + "/alerts?locationName=" + locationName
+          },
+          {
+            text: "Using the Daily Air Quality Index (DAQI)",
+            href: "https://www.gov.uk/government/publications/health-effects-of-air-pollution/using-the-daily-air-quality-index-daqi"
+          }
+          ]
+      }]
+  }) }}
+  
+  </div>
+  <!-- END RELATED CONTENT -->
+
+</div>
+
+<!-- UR SCENARIO LINKS (to test different versions of the location page )
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-full app-contact-panel govuk-!-margin-bottom-6" >
+    <h3 class="govuk-heading-s">User research scenarios</h3>
+      <span class="govuk-body-s"><a class="govuk-link" href="/{{ version }}/location-high?locationName={{ locationName }}&parentArea={{ parentArea }}">Research scenario 1</a>     </span>
+      <span class="govuk-body-s"><a class="govuk-link" href="/{{ version }}/location-veryhigh?locationName={{ locationName }}&parentArea={{ parentArea }}">Research scenario 2</a></span>
+  </div>
+</div>
+<!--END UR LINKS -->
+
+{% endblock %}

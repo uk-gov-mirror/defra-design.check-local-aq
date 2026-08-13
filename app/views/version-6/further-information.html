@@ -1,0 +1,366 @@
+{% extends "layouts/version-6.html" %}
+{% set displayBacklink = true %}
+{% set backlink = {
+  text: "Back to " ~ locationName,
+  href: "/version-6/location?locationName=" + locationName + "&parentArea=" + parentArea
+} %}
+
+{% from "/" + folder + "/components/toggletip/macro.njk" import toggletip %}
+{% from "/" + folder + "/components/aq-tabs/macro.njk" import aqTabs %}
+
+{% set title = "Air pollution in " ~ locationName ~ (" in " ~ parentArea if parentArea else "") %}
+{% set servicePage = true %}
+{% set pageHeadingSize = pageHeadingSize or "xl" %}
+
+{% set day2 = 1 | addDaysToTodayAbrev %}
+{% set day3 = 2 | addDaysToTodayAbrev %}
+{% set day4 = 3 | addDaysToTodayAbrev %}
+{% set day5 = 4 | addDaysToTodayAbrev %}
+
+{% set day2b = 1 | addDaysToTodayFull %}
+{% set day3b = 2 | addDaysToTodayFull %}
+{% set day4b = 3 | addDaysToTodayFull %}
+{% set day5b = 4 | addDaysToTodayFull %}
+
+{% set pm25Daqi = "" | randomIntBetween(1, 3) %}
+{% set pm10Daqi = "" | randomIntBetween(1, 3) %}
+{% set no2Daqi = "" | randomIntBetween(1, 3) %}
+{% set so2Daqi = "" | randomIntBetween(1, 3) %}
+
+{% block pageScripts %}
+  <script src="/public/javascripts/toggletips.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="govuk-grid-row" data-module="edge">
+  <div class="govuk-grid-column-full-until-desktop govuk-grid-column-two-thirds-from-desktop">
+
+    <h1 class="govuk-heading-{{ pageHeadingSize }}">{{ title }}</h1>
+
+    <h2 class="govuk-heading-m">Predicted air pollution levels</h2>
+
+    <!---------- TABBED FORECAST ---------->
+
+    <nav class="x-govuk-secondary-navigation" aria-label="Forecast days">
+      <ul class="x-govuk-secondary-navigation__list">
+        <li class="x-govuk-secondary-navigation__list-item x-govuk-secondary-navigation__list-item--current">
+          <a class="x-govuk-secondary-navigation__link" href="#today" aria-current="page">Today</a>
+        </li>
+        <li class="x-govuk-secondary-navigation__list-item">
+          <a class="x-govuk-secondary-navigation__link" href="#day2">{{ day2 }}</a>
+        </li>
+        <li class="x-govuk-secondary-navigation__list-item">
+          <a class="x-govuk-secondary-navigation__link" href="#day3">{{ day3 }}</a>
+        </li>
+        <li class="x-govuk-secondary-navigation__list-item">
+          <a class="x-govuk-secondary-navigation__link" href="#day4">{{ day4 }}</a>
+        </li>
+        <li class="x-govuk-secondary-navigation__list-item">
+          <a class="x-govuk-secondary-navigation__link" href="#day5">{{ day5 }}</a>
+        </li>
+      </ul>
+    </nav>
+
+      <!------ FORECAST PANELS ------>
+
+      <!--Today-->
+      <div class="aq-forecast-panel govuk-!-margin-top-6" id="today">
+        <h2 class="govuk-heading-m">Today</h2>
+
+        <p>The DAQI measures the short term health risk of air pollution.</p>
+        <p>The DAQI score for a specific location is based on the highest measured or predicted level out of these 5 pollutants.</p>
+
+        <table class="govuk-table govuk-!-margin-bottom-0">
+          <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+              <th scope="col" class="govuk-table__header">Pollutant</th>
+              <th scope="col" class="govuk-table__header govuk-!-text-align-centre">Level</th>
+            </tr>
+          </thead>
+          <tbody class="govuk-table__body">
+            <tr class="govuk-table__row">
+              <th scope="row" class="govuk-table__header"><a class="govuk-link" href="/{{ version }}/pollutants/particulate-matter2">Fine particulate matter (PM2.5)</a></th>
+              <td class="govuk-table__cell govuk-!-text-align-centre"><strong class="daqi-tag daqi-tag--{{ pm25Daqi }}">{{ pm25Daqi }} (low)</strong></td>
+            </tr>
+            <tr class="govuk-table__row">
+              <th scope="row" class="govuk-table__header"><a class="govuk-link" href="/{{ version }}/pollutants/particulate-matter10">Particulate matter (PM10)</a></th>
+              <td class="govuk-table__cell govuk-!-text-align-centre"><strong class="daqi-tag daqi-tag--{{ pm10Daqi }}">{{ pm10Daqi }} (low)</strong></td>
+            </tr>
+            <tr class="govuk-table__row">
+              <th scope="row" class="govuk-table__header"><a class="govuk-link" href="/{{ version }}/pollutants/nitrogen-dioxide">Nitrogen dioxide (NO2)</a></th>
+              <td class="govuk-table__cell govuk-!-text-align-centre"><strong class="daqi-tag daqi-tag--{{ no2Daqi }}">{{ no2Daqi }} (low)</strong></td>
+            </tr>
+            <tr class="govuk-table__row">
+              <th scope="row" class="govuk-table__header"><a class="govuk-link" href="/{{ version }}/pollutants/ozone">Ozone (O3)</a></th>
+              <td class="govuk-table__cell govuk-!-text-align-centre"><strong class="daqi-tag daqi-tag--5">5 (moderate)</strong></td>
+            </tr>
+            <tr class="govuk-table__row">
+              <th scope="row" class="govuk-table__header"><a class="govuk-link" href="/{{ version }}/pollutants/sulphur-dioxide">Sulphur dioxide (SO2)</a></th>
+              <td class="govuk-table__cell govuk-!-text-align-centre"><strong class="daqi-tag daqi-tag--{{ so2Daqi }}">{{ so2Daqi }} (low)</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!--Tomorrow-->
+      <div class="aq-forecast-panel govuk-!-margin-top-6" id="day2" hidden>
+        <h2 class="govuk-heading-m">{{ day2b }}</h2>
+
+        <p>The DAQI measures the short term health risk of air pollution.</p>
+        <p>The DAQI score for a specific location is based on the highest measured or predicted level out of these 5 pollutants.</p>
+
+        <table class="govuk-table govuk-!-margin-bottom-0">
+          <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+              <th scope="col" class="govuk-table__header">Pollutant</th>
+              <th scope="col" class="govuk-table__header govuk-!-text-align-centre">Level</th>
+            </tr>
+          </thead>
+          <tbody class="govuk-table__body">
+            <tr class="govuk-table__row">
+              <th scope="row" class="govuk-table__header"><a class="govuk-link" href="/{{ version }}/pollutants/particulate-matter2">Fine particulate matter (PM2.5)</a></th>
+              <td class="govuk-table__cell govuk-!-text-align-centre"><strong class="daqi-tag daqi-tag--{{ pm25Daqi }}">{{ pm25Daqi }} (low)</strong></td>
+            </tr>
+            <tr class="govuk-table__row">
+              <th scope="row" class="govuk-table__header"><a class="govuk-link" href="/{{ version }}/pollutants/particulate-matter10">Particulate matter (PM10)</a></th>
+              <td class="govuk-table__cell govuk-!-text-align-centre"><strong class="daqi-tag daqi-tag--{{ pm10Daqi }}">{{ pm10Daqi }} (low)</strong></td>
+            </tr>
+            <tr class="govuk-table__row">
+              <th scope="row" class="govuk-table__header"><a class="govuk-link" href="/{{ version }}/pollutants/nitrogen-dioxide">Nitrogen dioxide (NO2)</a></th>
+              <td class="govuk-table__cell govuk-!-text-align-centre"><strong class="daqi-tag daqi-tag--{{ no2Daqi }}">{{ no2Daqi }} (low)</strong></td>
+            </tr>
+            <tr class="govuk-table__row">
+              <th scope="row" class="govuk-table__header"><a class="govuk-link" href="/{{ version }}/pollutants/ozone">Ozone (O3)</a></th>
+              <td class="govuk-table__cell govuk-!-text-align-centre"><strong class="daqi-tag daqi-tag--6">6 (moderate)</strong></td>
+            </tr>
+            <tr class="govuk-table__row">
+              <th scope="row" class="govuk-table__header"><a class="govuk-link" href="/{{ version }}/pollutants/sulphur-dioxide">Sulphur dioxide (SO2)</a></th>
+              <td class="govuk-table__cell govuk-!-text-align-centre"><strong class="daqi-tag daqi-tag--{{ so2Daqi }}">{{ so2Daqi }} (low)</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!--Day 3-->
+      <div class="aq-forecast-panel govuk-!-margin-top-6" id="day3" hidden>
+        <h2 class="govuk-heading-m">{{ day3b }}</h2>
+
+        <p>The DAQI measures the short term health risk of air pollution.</p>
+        <p>The DAQI score for a specific location is based on the highest measured or predicted level out of these 5 pollutants.</p>
+
+        <table class="govuk-table govuk-!-margin-bottom-0">
+          <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+              <th scope="col" class="govuk-table__header">Pollutant</th>
+              <th scope="col" class="govuk-table__header govuk-!-text-align-centre">Level</th>
+            </tr>
+          </thead>
+          <tbody class="govuk-table__body">
+            <tr class="govuk-table__row">
+              <th scope="row" class="govuk-table__header"><a class="govuk-link" href="/{{ version }}/pollutants/particulate-matter2">Fine particulate matter (PM2.5)</a></th>
+              <td class="govuk-table__cell govuk-!-text-align-centre"><strong class="daqi-tag daqi-tag--{{ pm25Daqi }}">{{ pm25Daqi }} (low)</strong></td>
+            </tr>
+            <tr class="govuk-table__row">
+              <th scope="row" class="govuk-table__header"><a class="govuk-link" href="/{{ version }}/pollutants/particulate-matter10">Particulate matter (PM10)</a></th>
+              <td class="govuk-table__cell govuk-!-text-align-centre"><strong class="daqi-tag daqi-tag--{{ pm10Daqi }}">{{ pm10Daqi }} (low)</strong></td>
+            </tr>
+            <tr class="govuk-table__row">
+              <th scope="row" class="govuk-table__header"><a class="govuk-link" href="/{{ version }}/pollutants/nitrogen-dioxide">Nitrogen dioxide (NO2)</a></th>
+              <td class="govuk-table__cell govuk-!-text-align-centre"><strong class="daqi-tag daqi-tag--{{ no2Daqi }}">{{ no2Daqi }} (low)</strong></td>
+            </tr>
+            <tr class="govuk-table__row">
+              <th scope="row" class="govuk-table__header"><a class="govuk-link" href="/{{ version }}/pollutants/ozone">Ozone (O3)</a></th>
+              <td class="govuk-table__cell govuk-!-text-align-centre"><strong class="daqi-tag daqi-tag--5">5 (low)</strong></td>
+            </tr>
+            <tr class="govuk-table__row">
+              <th scope="row" class="govuk-table__header"><a class="govuk-link" href="/{{ version }}/pollutants/sulphur-dioxide">Sulphur dioxide (SO2)</a></th>
+              <td class="govuk-table__cell govuk-!-text-align-centre"><strong class="daqi-tag daqi-tag--{{ so2Daqi }}">{{ so2Daqi }} (low)</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!--Day 4-->
+      <div class="aq-forecast-panel govuk-!-margin-top-6" id="day4" hidden>
+        <h2 class="govuk-heading-m">{{ day4b }}</h2>
+
+        <p>The DAQI measures the short term health risk of air pollution.</p>
+        <p>The DAQI score for a specific location is based on the highest measured or predicted level out of these 5 pollutants.</p>
+
+        <table class="govuk-table govuk-!-margin-bottom-0">
+          <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+              <th scope="col" class="govuk-table__header">Pollutant</th>
+              <th scope="col" class="govuk-table__header govuk-!-text-align-centre">Level</th>
+            </tr>
+          </thead>
+          <tbody class="govuk-table__body">
+            <tr class="govuk-table__row">
+              <th scope="row" class="govuk-table__header"><a class="govuk-link" href="/{{ version }}/pollutants/particulate-matter2">Fine particulate matter (PM2.5)</a></th>
+              <td class="govuk-table__cell govuk-!-text-align-centre"><strong class="daqi-tag daqi-tag--{{ pm25Daqi }}">{{ pm25Daqi }} (low)</strong></td>
+            </tr>
+            <tr class="govuk-table__row">
+              <th scope="row" class="govuk-table__header"><a class="govuk-link" href="/{{ version }}/pollutants/particulate-matter10">Particulate matter (PM10)</a></th>
+              <td class="govuk-table__cell govuk-!-text-align-centre"><strong class="daqi-tag daqi-tag--{{ pm10Daqi }}">{{ pm10Daqi }} (low)</strong></td>
+            </tr>
+            <tr class="govuk-table__row">
+              <th scope="row" class="govuk-table__header"><a class="govuk-link" href="/{{ version }}/pollutants/nitrogen-dioxide">Nitrogen dioxide (NO2)</a></th>
+              <td class="govuk-table__cell govuk-!-text-align-centre"><strong class="daqi-tag daqi-tag--{{ no2Daqi }}">{{ no2Daqi }} (low)</strong></td>
+            </tr>
+            <tr class="govuk-table__row">
+              <th scope="row" class="govuk-table__header"><a class="govuk-link" href="/{{ version }}/pollutants/ozone">Ozone (O3)</a></th>
+              <td class="govuk-table__cell govuk-!-text-align-centre"><strong class="daqi-tag daqi-tag--4">4 (low)</strong></td>
+            </tr>
+            <tr class="govuk-table__row">
+              <th scope="row" class="govuk-table__header"><a class="govuk-link" href="/{{ version }}/pollutants/sulphur-dioxide">Sulphur dioxide (SO2)</a></th>
+              <td class="govuk-table__cell govuk-!-text-align-centre"><strong class="daqi-tag daqi-tag--{{ so2Daqi }}">{{ so2Daqi }} (low)</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!--Day 5-->
+      <div class="aq-forecast-panel govuk-!-margin-top-6" id="day5" hidden>
+        <h2 class="govuk-heading-m">{{ day5b }}</h2>
+
+        <p>The DAQI measures the short term health risk of air pollution.</p>
+        <p>The DAQI score for a specific location is based on the highest measured or predicted level out of these 5 pollutants.</p>
+
+        <table class="govuk-table govuk-!-margin-bottom-0">
+          <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+              <th scope="col" class="govuk-table__header">Pollutant</th>
+              <th scope="col" class="govuk-table__header govuk-!-text-align-centre">Level</th>
+            </tr>
+          </thead>
+          <tbody class="govuk-table__body">
+            <tr class="govuk-table__row">
+              <th scope="row" class="govuk-table__header"><a class="govuk-link" href="/{{ version }}/pollutants/particulate-matter2">Fine particulate matter (PM2.5)</a></th>
+              <td class="govuk-table__cell govuk-!-text-align-centre"><strong class="daqi-tag daqi-tag--{{ pm25Daqi }}">{{ pm25Daqi }} (low)</strong></td>
+            </tr>
+            <tr class="govuk-table__row">
+              <th scope="row" class="govuk-table__header"><a class="govuk-link" href="/{{ version }}/pollutants/particulate-matter10">Particulate matter (PM10)</a></th>
+              <td class="govuk-table__cell govuk-!-text-align-centre"><strong class="daqi-tag daqi-tag--{{ pm10Daqi }}">{{ pm10Daqi }} (low)</strong></td>
+            </tr>
+            <tr class="govuk-table__row">
+              <th scope="row" class="govuk-table__header"><a class="govuk-link" href="/{{ version }}/pollutants/nitrogen-dioxide">Nitrogen dioxide (NO2)</a></th>
+              <td class="govuk-table__cell govuk-!-text-align-centre"><strong class="daqi-tag daqi-tag--{{ no2Daqi }}">{{ no2Daqi }} (low)</strong></td>
+            </tr>
+            <tr class="govuk-table__row">
+              <th scope="row" class="govuk-table__header"><a class="govuk-link" href="/{{ version }}/pollutants/ozone">Ozone (O3)</a></th>
+              <td class="govuk-table__cell govuk-!-text-align-centre"><strong class="daqi-tag daqi-tag--4">4 (low)</strong></td>
+            </tr>
+            <tr class="govuk-table__row">
+              <th scope="row" class="govuk-table__header"><a class="govuk-link" href="/{{ version }}/pollutants/sulphur-dioxide">Sulphur dioxide (SO2)</a></th>
+              <td class="govuk-table__cell govuk-!-text-align-centre"><strong class="daqi-tag daqi-tag--{{ so2Daqi }}">{{ so2Daqi }} (low)</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="govuk-caption-s govuk-!-margin-top-4">Last updated today at 5am</p>
+
+      <script>
+        (function () {
+          var links = document.querySelectorAll('.x-govuk-secondary-navigation__link');
+          var panels = document.querySelectorAll('.aq-forecast-panel');
+
+          function updateBackLink(target) {
+            var backLink = document.querySelector('.govuk-back-link');
+            if (backLink) { backLink.href = backLink.href.split('#')[0] + '#' + target; }
+          }
+
+          function activatePanel(target) {
+            links.forEach(function (l) {
+              var active = l.getAttribute('href').substring(1) === target;
+              l.parentElement.classList.toggle('x-govuk-secondary-navigation__list-item--current', active);
+              if (active) { l.setAttribute('aria-current', 'page'); } else { l.removeAttribute('aria-current'); }
+            });
+            panels.forEach(function (p) { p.hidden = (p.id !== target); });
+            history.replaceState(null, '', '#' + target);
+            updateBackLink(target);
+          }
+
+          var hash = window.location.hash.replace('#', '');
+          var initial = (hash && document.getElementById(hash)) ? hash : 'today';
+          if (initial !== 'today') { activatePanel(initial); } else { updateBackLink('today'); }
+
+          links.forEach(function (link) {
+            link.addEventListener('click', function (e) {
+              e.preventDefault();
+              activatePanel(this.getAttribute('href').substring(1));
+            });
+          });
+        })();
+      </script>
+
+      <!---------- END TABS ------------>
+
+      <a href="https://get-air-pollution-data-proto-c7a2601e06dd.herokuapp.com/version-16/forecast-map" role="button" id="map-btn" class="aq-button-secondary aq-button-secondary--icon govuk-!-margin-top-2">
+      <span class="aq-button-secondary__icon">
+        <svg focusable="false" width="15" height="20" viewBox="0 0 15 20">
+          <path d="M15,7.5c0.009,3.778 -4.229,9.665 -7.5,12.5c-3.271,-2.835 -7.509,-8.722 -7.5,-12.5c0,-4.142 3.358,-7.5 7.5,-7.5c4.142,0 7.5,3.358 7.5,7.5Zm-7.5,5.461c3.016,0 5.461,-2.445 5.461,-5.461c0,-3.016 -2.445,-5.461 -5.461,-5.461c-3.016,0 -5.461,2.445 -5.461,5.461c0,3.016 2.445,5.461 5.461,5.461Z" fill="currentColor"></path>
+        </svg>
+      </span>
+      <span class="aq-button-secondary__text">View air pollution forecast on a map</span>
+      <span class="govuk-visually-hidden">(Visual only)</span>
+    </a>
+  
+    <div class="govuk-!-padding-bottom-6"></div>
+
+    <hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-6">
+
+    {% include "/" + folder + "/includes/local-authority.html" %}
+
+    <div class="govuk-!-padding-bottom-2"></div>
+
+    <hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-6">
+
+  {% set showMonitoringMapButton = false %}
+    {% include "/" + folder + "/includes/monitoring-sites.html" %}
+
+    <a href="https://get-air-pollution-data-proto-c7a2601e06dd.herokuapp.com/version-16/map" role="button" class="aq-button-secondary aq-button-secondary--icon">
+      <span class="aq-button-secondary__icon">
+        <svg focusable="false" width="15" height="20" viewBox="0 0 15 20">
+          <path d="M15,7.5c0.009,3.778 -4.229,9.665 -7.5,12.5c-3.271,-2.835 -7.509,-8.722 -7.5,-12.5c0,-4.142 3.358,-7.5 7.5,-7.5c4.142,0 7.5,3.358 7.5,7.5Zm-7.5,5.461c3.016,0 5.461,-2.445 5.461,-5.461c0,-3.016 -2.445,-5.461 -5.461,-5.461c-3.016,0 -5.461,2.445 -5.461,5.461c0,3.016 2.445,5.461 5.461,5.461Z" fill="currentColor"></path>
+        </svg>
+      </span>
+      <span class="aq-button-secondary__text">View map of nearby monitoring stations</span>
+      <span class="govuk-visually-hidden">(Visual only)</span>
+    </a>
+
+    <div class="govuk-!-padding-bottom-6"></div>
+
+    <hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-6">
+
+    {% include "/" + folder + "/includes/air-quality-alerts.html" %}
+
+    <div class="govuk-!-padding-bottom-9"></div>
+
+  </div>
+
+  <div class="govuk-grid-column-full-until-desktop govuk-grid-column-one-third-from-desktop">
+    {{ xGovukRelatedNavigation({
+      sections: [{
+        items: [{
+          text: "Health effects of air pollution",
+          href: "/" + version + "/health-effects?locationName=" + locationName
+        },
+        {
+          text: "Actions to reduce your exposure to air pollution",
+          href: "/" + version + "/actions?locationName=" + locationName
+        },
+        {
+          text: "Air pollution breaches",
+          href: "/" + version + "/alerts?locationName=" + locationName
+        },
+        {
+          text: "Using the Daily Air Quality Index (DAQI)",
+          href: "https://www.gov.uk/government/publications/health-effects-of-air-pollution/using-the-daily-air-quality-index-daqi"
+        }
+        ]
+      }]
+    }) }}
+  </div>
+</div>
+{% endblock %}
