@@ -75,6 +75,10 @@ router.get('/alerts/:slug', (req, res) => {
 const locationRequiredRoutes = [
   '/sign-up-for-alerts/setup-or-manage',
 
+  '/sign-up-for-alerts/alerts-method',
+  '/sign-up-for-alerts/alerts-pollutants',
+  '/sign-up-for-alerts/alerts-levels',
+
   '/sign-up-for-alerts/change-location-check',
   '/sign-up-for-alerts/change-alert-method',
 
@@ -160,10 +164,54 @@ router.get(locationRequiredRoutes, (req, res) => {
     locationString: req.session.data['locationString'] || "Unknown location",
     email: req.session.data['notifyByEmail'],
     text: req.session.data['notifyByText'],
+    alertsContactMethod: req.session.data['alertsContactMethod'],
+    alertsPollutants: req.session.data['alertsPollutants'],
+    alertsLevels: req.session.data['alertsLevels'],
     monitoringSites: monitoringSites,
     siteTypeDescriptions: siteTypeDescriptions,
     pollutantTypes: pollutantTypes
   });
+});
+
+// ---------- Alerts sign-up side journey ----------
+
+// Location entered on the alerts journey
+router.post('/sign-up-for-alerts/alerts-where', (req, res) => {
+  const locationType = req.body.locationType;
+  const location = (locationType === 'ni-location' ? req.body.ni : req.body.engScoWal) || '';
+
+  if (!location.trim()) {
+    return res.redirect(`/${version}/sign-up-for-alerts/alerts-where`);
+  }
+
+  req.session.data['locationName'] = location.trim();
+  req.session.data['locationString'] = location.trim();
+  req.session.data['locationType'] = locationType;
+
+  res.redirect(`/${version}/sign-up-for-alerts/alerts-method`);
+});
+
+// How the user wants to receive alerts
+router.post('/sign-up-for-alerts/alerts-method', (req, res) => {
+  req.session.data['alertsContactMethod'] = req.body['alertsContactMethod'];
+  res.redirect(`/${version}/sign-up-for-alerts/alerts-pollutants`);
+});
+
+// Pollutants the user wants alerts about
+router.post('/sign-up-for-alerts/alerts-pollutants', (req, res) => {
+  req.session.data['alertsPollutants'] = req.body['alertsPollutants'];
+  res.redirect(`/${version}/sign-up-for-alerts/alerts-levels`);
+});
+
+// Pollution levels, then split by contact method
+router.post('/sign-up-for-alerts/alerts-levels', (req, res) => {
+  req.session.data['alertsLevels'] = req.body['alertsLevels'];
+
+  const redirectPath = req.session.data['alertsContactMethod'] === 'text'
+    ? `/${version}/sign-up-for-alerts/mobile-number`
+    : `/${version}/sign-up-for-alerts/email`;
+
+  res.redirect(redirectPath);
 });
 
 // Routing for SETUP or manage alerts

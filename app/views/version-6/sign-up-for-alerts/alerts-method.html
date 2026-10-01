@@ -1,0 +1,63 @@
+{% extends "layouts/version-6.html" %}
+{% set showAnotherService = true %}
+{% set anotherServiceName = "Set up air pollution alerts" %}
+
+{% block pageTitle %}
+How do you want to get your alerts? – {{ serviceName }} – GOV.UK Prototype Kit
+{% endblock %}
+
+{% block beforeContent %}
+{{ govukPhaseBanner({
+  tag: {
+    text: "Prototype " + version
+  },
+  html: 'This is a prototype and is not a live service. Help us improve it and <a class="govuk-link" href="#">give your feedback by email</a>.'
+}) }}
+
+{{ govukBackLink({
+  text: "Back",
+  href: "javascript:window.history.back()"
+}) }}
+{% endblock %}
+
+{% block content %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+    <form class="form" action="/{{ version }}/sign-up-for-alerts/alerts-method" method="post">
+
+      <h1 class="govuk-heading-l govuk-!-margin-bottom-2">How do you want to get your alerts?</h1>
+
+      <p class="govuk-body govuk-!-margin-top-4 govuk-!-margin-bottom-6"><strong>Selected location:</strong> {{ locationString }}</p>
+
+      {{ govukRadios({
+        name: "alertsContactMethod",
+        fieldset: {
+          legend: {
+            text: "How do you want to get your alerts?",
+            classes: "govuk-visually-hidden"
+          }
+        },
+        hint: {
+          text: "Select one option."
+        },
+        items: [
+          {
+            value: "text",
+            text: "Text message",
+            checked: alertsContactMethod == "text"
+          },
+          {
+            value: "email",
+            text: "Email",
+            checked: alertsContactMethod == "email"
+          }
+        ]
+      }) }}
+
+      {{ govukButton({
+        text: "Continue"
+      }) }}
+    </form>
+  </div>
+</div>
+{% endblock %}

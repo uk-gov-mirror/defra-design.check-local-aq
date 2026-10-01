@@ -5,6 +5,7 @@
 
 {% set version = "version-6" %}
 {% set bodyClasses = "version-6" %}
+{% set serviceName = "Check air pollution" %}
 
 {% block headIcons %}{% endblock %}
 
@@ -27,14 +28,16 @@
   {% elif showAnotherService is defined and showAnotherService %}
     {{ govukHeader({
       homepageUrl: "/" + version,
-      serviceName: anotherServiceName,
-      serviceUrl: "/" + version + "/" + serviceNameSlug,
+      serviceName: serviceName,
+      serviceUrl: "/" + version,
       containerClasses: "govuk-width-container",
       useTudorCrown: true
     }) }}
   {% elif startPage %}
     {{ govukHeader({
       homepageUrl: "/" + version,
+      serviceName: serviceName,
+      serviceUrl: "/" + version,
       containerClasses: "govuk-width-container",
       useTudorCrown: true
     }) }}

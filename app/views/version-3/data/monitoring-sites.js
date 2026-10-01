@@ -22,8 +22,6 @@ const monitoringSites = [
 
 ]
 
-
-
 // Used to populate toggletips on monitoring sites
 
 const siteTypeDescriptions = {

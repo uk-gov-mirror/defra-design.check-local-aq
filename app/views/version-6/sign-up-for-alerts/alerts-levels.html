@@ -1,0 +1,63 @@
+{% extends "layouts/version-6.html" %}
+{% set showAnotherService = true %}
+{% set anotherServiceName = "Set up air pollution alerts" %}
+
+{% block pageTitle %}
+Choose pollution levels – {{ serviceName }} – GOV.UK Prototype Kit
+{% endblock %}
+
+{% block beforeContent %}
+{{ govukPhaseBanner({
+  tag: {
+    text: "Prototype " + version
+  },
+  html: 'This is a prototype and is not a live service. Help us improve it and <a class="govuk-link" href="#">give your feedback by email</a>.'
+}) }}
+
+{{ govukBackLink({
+  text: "Back",
+  href: "javascript:window.history.back()"
+}) }}
+{% endblock %}
+
+{% block content %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+    <form class="form" action="/{{ version }}/sign-up-for-alerts/alerts-levels" method="post">
+
+      {{ govukCheckboxes({
+        name: "alertsLevels",
+        values: alertsLevels,
+        fieldset: {
+          legend: {
+            text: "Which pollution levels do you want alerts about?",
+            isPageHeading: true,
+            classes: "govuk-fieldset__legend--l govuk-!-margin-bottom-6"
+          }
+        },
+        hint: {
+          text: "Select all that apply."
+        },
+        items: [
+          {
+            value: "very-high",
+            text: "Very high"
+          },
+          {
+            value: "high",
+            text: "High"
+          },
+          {
+            value: "moderate",
+            text: "Moderate"
+          }
+        ]
+      }) }}
+
+      {{ govukButton({
+        text: "Continue"
+      }) }}
+    </form>
+  </div>
+</div>
+{% endblock %}
